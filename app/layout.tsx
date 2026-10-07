@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   title: "Strata - Buy the whole sector in one tap",
   description:
     "Strata turns tokenized stocks into self-custodied index baskets on BNB Chain, then puts an on-chain agent in charge of keeping them balanced 24/7.",
-  metadataBase: new URL("https://strata.example"),
+  metadataBase: new URL("https://strata-bnb.vercel.app"),
   openGraph: {
     title: "Strata - Tokenized equity baskets on BNB Chain",
     description:

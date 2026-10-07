@@ -20,6 +20,7 @@ interface Body {
   symbol?: unknown;
   orderUsdt?: unknown;
   goAhead?: unknown;
+  walletAddress?: unknown;
 }
 
 function bad(reason: string, status = 400) {
@@ -34,7 +35,7 @@ export async function POST(request: Request) {
     return bad("Request body must be JSON.");
   }
 
-  const { basketId, symbol, orderUsdt, goAhead } = body;
+  const { basketId, symbol, orderUsdt, goAhead, walletAddress } = body;
 
   if (typeof basketId !== "string" || basketId.length === 0) {
     return bad("basketId is required.");
@@ -64,6 +65,8 @@ export async function POST(request: Request) {
       holding,
       orderUsdt: size,
       goAhead: goAhead === true,
+      previewAddress:
+        typeof walletAddress === "string" ? walletAddress : undefined,
     });
     return NextResponse.json({ ok: true, result });
   } catch (err) {

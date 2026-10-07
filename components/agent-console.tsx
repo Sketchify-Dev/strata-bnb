@@ -3,10 +3,12 @@
 // Live agent console. Runs the REAL rebalance planner (lib/agent/rebalance) in
 // the browser, reactively, as the operator changes the drift threshold. Positions
 // are derived server-side from live 24h price moves (see the agent page), so the
-// drift shown is computed from real market data, not mocked. Enabling the agent
-// (funding + execution) is the next build step and is intentionally disabled.
+// drift shown is computed from real market data, not mocked. "Dry run" calls the
+// real executor in simulate mode: a live quote + guardrail + planned steps, no
+// broadcast. Autonomous live execution is gated server-side (the agent's own key).
 
 import { useMemo, useState, type ReactNode } from "react";
+import { useWallet } from "@/lib/wallet";
 import type { Holding } from "@/lib/baskets";
 import { planRebalance, type Position } from "@/lib/agent/rebalance";
 import type { AgentStatus } from "@/lib/agent/preflight";
@@ -75,6 +77,7 @@ export function AgentConsole({
   const [dryRun, setDryRun] = useState<ExecutionResult | null>(null);
   const [running, setRunning] = useState(false);
   const [dryErr, setDryErr] = useState<string | null>(null);
+  const { address: connectedAddress } = useWallet();
 
   // The agent would BUY the most-underweight leg; dry-run that one (fall back to
   // the top-drift leg when the basket is already balanced).
@@ -98,6 +101,7 @@ export function AgentConsole({
           basketId,
           symbol: dryTarget.symbol,
           orderUsdt: dryUsdt,
+          walletAddress: connectedAddress ?? undefined,
         }),
       });
       const data = await res.json();
@@ -200,14 +204,14 @@ export function AgentConsole({
           <button
             type="button"
             disabled
-            title="Funding + execution land in the next build step"
+            title="Autonomous live execution runs server-side with the agent's own key; the hosted demo is simulate-only"
             className="mt-3 flex h-11 w-full cursor-not-allowed items-center justify-center rounded-full bg-gold text-sm font-semibold text-black opacity-50"
           >
-            Enable agent (connect wallet)
+            Enable autonomous execution
           </button>
           <p className="mt-3 text-center font-mono text-[11px] text-ink-muted">
-            Runs on Binance Agentic Wallet and BNB Agent Studio. Funds its own gas
-            via x402. It can act, but it can never custody.
+            The agent holds its own key and pays its own gas. It can act, but it
+            can never custody your funds.
           </p>
         </div>
 
@@ -301,7 +305,7 @@ export function AgentConsole({
                 <Step k="quote">
                   {sells} sell / {buys} buy · each leg guardrail-gated
                 </Step>
-                <Step k="simulate">gas funded via x402</Step>
+                <Step k="simulate">gas from its own wallet</Step>
                 <Step k="broadcast">
                   <span className="text-ink-muted">
                     enable + fund to run · turnover {usd(plan.turnoverUsdt)}

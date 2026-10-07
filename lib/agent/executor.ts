@@ -36,7 +36,7 @@ import {
   getWalletClient,
 } from "@/lib/chain/client";
 import { getExecutionConfig, type ExecutionMode } from "./exec-config";
-import { checkFunding } from "./preflight";
+import { checkFunding, type FundingCheck } from "./preflight";
 import { bsc } from "viem/chains";
 import type { Address, Hex } from "viem";
 
@@ -77,6 +77,10 @@ export interface ExecutionResult {
 
 const SLIPPAGE = "0.5";
 
+// Stand-in address for quoting when no agent burner is configured (hosted demo).
+// Quoting is open to any wallet and moves no funds; this is never signed with.
+const PREVIEW_ADDRESS = "0x000000000000000000000000000000000000dEaD";
+
 export interface ExecuteLegParams {
   basket: Basket;
   holding: Holding;
@@ -84,6 +88,12 @@ export interface ExecuteLegParams {
   orderUsdt: number;
   /** Explicit per-action approval, required before anything live happens. */
   goAhead?: boolean;
+  /**
+   * Address to quote against when no agent burner is configured (the hosted
+   * demo): lets the simulate pipeline run a real quote + guardrail from a
+   * connected or placeholder wallet. Never used to sign or broadcast.
+   */
+  previewAddress?: string;
 }
 
 export async function executeLeg(
@@ -92,6 +102,15 @@ export async function executeLeg(
   const { holding, orderUsdt } = params;
   const cfg = getExecutionConfig();
   const wallet = getAgentAddress();
+
+  // Quotes and the guardrail are read-only and open to any wallet, so when no
+  // agent burner is configured (the hosted demo) we still run the full simulate
+  // pipeline, quoting against the connected wallet or a placeholder. Never signed.
+  const previewAddr =
+    params.previewAddress && /^0x[0-9a-fA-F]{40}$/.test(params.previewAddress)
+      ? params.previewAddress
+      : PREVIEW_ADDRESS;
+  const quoteAddress = wallet ?? previewAddr;
 
   const base = {
     mode: cfg.mode,
@@ -110,8 +129,9 @@ export async function executeLeg(
   };
   const steps: ExecStep[] = [];
 
-  // The agent acts on its OWN wallet, so it needs one configured to do anything.
-  if (!wallet) {
+  // Live execution needs the agent's OWN key to sign. Without a key the mode is
+  // forced to simulate, and only the read-only preview below runs.
+  if (!wallet && cfg.mode === "live") {
     return {
       ...base,
       steps: [
@@ -120,7 +140,7 @@ export async function executeLeg(
           label: "Agent wallet",
           status: "blocked",
           detail:
-            "No agent wallet configured. Set AGENT_WALLET_PRIVATE_KEY (a burner) to run a dry-run; no funds are needed for simulate.",
+            "No agent wallet configured. Set AGENT_WALLET_PRIVATE_KEY (a burner) to broadcast; the simulate preview needs no key.",
         },
       ],
       outcome: "not_configured",
@@ -138,7 +158,7 @@ export async function executeLeg(
       toTokenAddress: holding.address,
       amount,
       slippage: SLIPPAGE,
-      userWalletAddress: wallet,
+      userWalletAddress: quoteAddress,
     });
     route = Array.isArray(routes) ? bestRoute(routes) : undefined;
   } catch (err) {
@@ -214,22 +234,30 @@ export async function executeLeg(
     };
   }
 
-  // 3. Funding preflight (balances + allowance), best-effort.
+  // 3. Funding preflight (balances + allowance), best-effort. Skipped with no
+  //    agent wallet (hosted preview): there is nothing on-chain to check.
   const requiredBase = BigInt(amount);
-  const funding = await checkFunding(
-    requiredBase,
-    approveTarget as Address,
-  ).catch(() => null);
-
-  const funded = !!funding && funding.enoughUsdt && funding.enoughGas;
-  const needsApprove = !funding?.allowanceOk;
-  const fundDetail = funding
-    ? [
-        funding.enoughUsdt ? "USDT ok" : "USDT short",
-        funding.enoughGas ? "gas ok" : "gas short",
-        funding.allowanceOk ? "allowance ok" : "approval needed",
-      ].join(" · ")
-    : "balances unavailable (RPC)";
+  let funding: FundingCheck | null = null;
+  let funded = false;
+  let needsApprove = true;
+  let fundDetail: string;
+  if (!wallet) {
+    fundDetail =
+      "No agent wallet on this host (preview). Balances and allowance apply to the agent's own key in live mode.";
+  } else {
+    funding = await checkFunding(requiredBase, approveTarget as Address).catch(
+      () => null,
+    );
+    funded = !!funding && funding.enoughUsdt && funding.enoughGas;
+    needsApprove = !funding?.allowanceOk;
+    fundDetail = funding
+      ? [
+          funding.enoughUsdt ? "USDT ok" : "USDT short",
+          funding.enoughGas ? "gas ok" : "gas short",
+          funding.allowanceOk ? "allowance ok" : "approval needed",
+        ].join(" · ")
+      : "balances unavailable (RPC)";
+  }
 
   steps.push({
     key: "preflight",
@@ -345,7 +373,7 @@ export async function executeLeg(
       toTokenAddress: holding.address,
       amount,
       slippage: SLIPPAGE,
-      userWalletAddress: wallet,
+      userWalletAddress: quoteAddress,
     });
     const fresh = Array.isArray(freshRoutes) ? bestRoute(freshRoutes) : undefined;
     if (fresh) {
@@ -374,7 +402,7 @@ export async function executeLeg(
       toTokenAddress: holding.address,
       amount,
       slippagePercent: SLIPPAGE,
-      userWalletAddress: wallet,
+      userWalletAddress: quoteAddress,
       quoteId: liveRoute.quoteId,
     });
   } catch (err) {
