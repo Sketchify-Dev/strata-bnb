@@ -1,26 +1,143 @@
 @import "tailwindcss";
 
+/*
+  Strata design tokens.
+  Dark-first (premium trading-desk feel), with a clean light mode under
+  prefers-color-scheme: light. Accent nods to BNB gold; up/down use
+  Binance's own market greens and reds so the product reads on-chain-native.
+*/
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* surfaces */
+  --canvas: #08090b;
+  --surface: #0e1014;
+  --surface-2: #14171d;
+  --surface-3: #191d24;
+  --line: #23272f;
+  --line-strong: #30353f;
+
+  /* text */
+  --ink: #f5f6f8;
+  --ink-secondary: #a4a9b3;
+  --ink-muted: #6b7280;
+
+  /* brand + semantics */
+  --gold: #f0b90b;      /* BNB */
+  --gold-bright: #f8d548;
+  --gold-dim: #8a6b09;
+  --up: #16c784;        /* market green */
+  --down: #ea3943;      /* market red */
+
+  /* effects */
+  --glow: color-mix(in oklab, var(--gold) 22%, transparent);
+  --ring: color-mix(in oklab, var(--gold) 55%, transparent);
+  --shadow-card: 0 1px 0 0 rgba(255, 255, 255, 0.03) inset,
+    0 12px 32px -12px rgba(0, 0, 0, 0.6);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: light) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --canvas: #f7f8fa;
+    --surface: #ffffff;
+    --surface-2: #f2f4f7;
+    --surface-3: #eaedf2;
+    --line: #e4e7ec;
+    --line-strong: #d3d8e0;
+    --ink: #0b0d12;
+    --ink-secondary: #4a515c;
+    --ink-muted: #8a919e;
+    --gold: #b9860b;
+    --gold-bright: #d99e0b;
+    --gold-dim: #e7c66a;
+    --up: #0a8a5c;
+    --down: #cf2733;
+    --shadow-card: 0 1px 2px 0 rgba(16, 24, 40, 0.06),
+      0 12px 28px -16px rgba(16, 24, 40, 0.24);
   }
 }
 
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+
+  --color-ink: var(--ink);
+  --color-ink-secondary: var(--ink-secondary);
+  --color-ink-muted: var(--ink-muted);
+
+  --color-gold: var(--gold);
+  --color-gold-bright: var(--gold-bright);
+  --color-gold-dim: var(--gold-dim);
+  --color-up: var(--up);
+  --color-down: var(--down);
+
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-instrument);
+
+  --radius-card: 16px;
+}
+
+* {
+  border-color: var(--line);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Editorial serif display for major headings; mono stays on every figure. */
+h1,
+h2 {
+  font-family: var(--font-instrument), ui-serif, Georgia, "Times New Roman", serif;
+  font-weight: 400;
+  letter-spacing: -0.015em;
+}
+
+/* All figures line up: essential for a finance UI. */
+.tnum {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+/* Subtle dotted grid used behind hero sections. */
+.bg-grid {
+  background-image: radial-gradient(
+    color-mix(in oklab, var(--ink) 8%, transparent) 1px,
+    transparent 1px
+  );
+  background-size: 22px 22px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 30%, transparent 78%);
+}
+
+/* Gold text used sparingly for emphasis. */
+.text-gradient-gold {
+  background: linear-gradient(180deg, var(--gold-bright), var(--gold));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@keyframes ticker {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.animate-ticker {
+  animation: ticker 40s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .animate-ticker { animation: none; }
 }
