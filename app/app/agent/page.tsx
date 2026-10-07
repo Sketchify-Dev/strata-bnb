@@ -44,7 +44,8 @@ export default async function AgentPage({
         </h1>
         <p className="mt-1 max-w-2xl text-sm leading-relaxed text-ink-secondary">
           Set a rule once. The agent watches drift and rebalances on BSC, 24/7,
-          funding its own gas via x402. It can act, but it can never custody.
+          funding its own gas from its own wallet. It can act, but it can never
+          custody.
         </p>
 
         {/* Target basket */}

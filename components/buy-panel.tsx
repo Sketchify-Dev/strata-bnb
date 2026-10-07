@@ -3,10 +3,13 @@
 // Live buy panel. Calls the server-signed quote route (/api/binance/quote) and
 // renders the per-leg liquidity guardrail verdict: which legs are ready, which
 // are wide, and which the guardrail is holding back (e.g. no live RFQ maker, so
-// the aggregator fell back to a junk route). Execution (approve -> simulate ->
-// broadcast) is the next build step and is intentionally still disabled here.
+// the aggregator fell back to a junk route). You can connect an injected wallet
+// to quote against your own address; settlement is handled by the agent, which
+// signs and broadcasts from its own key server-side (see lib/agent/executor).
 
-import { useState, type ReactNode } from "react";
+import Link from "next/link";
+import { useEffect, useState, type ReactNode } from "react";
+import { useWallet } from "@/lib/wallet";
 import type {
   BasketQuote,
   HoldingQuote,
@@ -51,6 +54,11 @@ export function BuyPanel({
   const [quote, setQuote] = useState<BasketQuote | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { address: connectedAddress, connect, connecting } = useWallet();
+
+  useEffect(() => {
+    if (connectedAddress) setAddress(connectedAddress);
+  }, [connectedAddress]);
 
   const size = Number(orderSize);
   const sizeValid = Number.isFinite(size) && size > 0;
@@ -108,13 +116,30 @@ export function BuyPanel({
       {/* Wallet address (required for RFQ quoting) */}
       <div className="mt-4 flex items-center justify-between">
         <label className="text-xs text-ink-secondary">Wallet address</label>
-        <button
-          type="button"
-          onClick={() => setAddress(DEMO_ADDRESS)}
-          className="font-mono text-[10px] text-ink-muted underline decoration-dotted underline-offset-2 transition-colors hover:text-ink-secondary"
-        >
-          use demo address
-        </button>
+        <div className="flex items-center gap-3">
+          {connectedAddress ? (
+            <span className="flex items-center gap-1 font-mono text-[10px] text-up">
+              <span className="h-1 w-1 rounded-full bg-up" />
+              connected
+            </span>
+          ) : (
+            <button
+              type="button"
+              onClick={() => void connect()}
+              disabled={connecting}
+              className="font-mono text-[10px] text-ink-secondary underline decoration-dotted underline-offset-2 transition-colors hover:text-ink disabled:opacity-50"
+            >
+              {connecting ? "connecting…" : "connect wallet"}
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() => setAddress(DEMO_ADDRESS)}
+            className="font-mono text-[10px] text-ink-muted underline decoration-dotted underline-offset-2 transition-colors hover:text-ink-secondary"
+          >
+            use demo address
+          </button>
+        </div>
       </div>
       <input
         value={address}
@@ -130,7 +155,9 @@ export function BuyPanel({
       <p className="mt-1.5 font-mono text-[10px] leading-relaxed text-ink-muted">
         {address.length > 0 && !addressValid
           ? "Enter a valid 0x BSC address."
-          : "Required for RFQ quoting. Wallet connect + execution land next."}
+          : connectedAddress
+            ? "Using your connected wallet. Settlement runs through the agent."
+            : "Required for RFQ quoting. Connect your wallet or paste a BSC address."}
       </p>
 
       {/* Summary rows */}
@@ -214,16 +241,14 @@ export function BuyPanel({
             held, not executed.
           </p>
 
-          <button
-            type="button"
-            disabled
-            title="Execution lands in the next build step"
-            className="mt-4 flex h-11 w-full cursor-not-allowed items-center justify-center rounded-full border border-line-strong text-sm font-semibold text-ink-secondary opacity-70"
+          <Link
+            href={`/app/agent?basket=${basketId}`}
+            className="mt-4 flex h-11 w-full items-center justify-center rounded-full bg-gold text-sm font-semibold text-black transition-opacity hover:opacity-90"
           >
-            Connect wallet to execute
-          </button>
+            Hand to the rebalance agent →
+          </Link>
           <p className="mt-2 text-center font-mono text-[11px] text-ink-muted">
-            Quote → simulate → broadcast. One approval.
+            Quote and guardrail are live. The agent executes and rebalances on-chain.
           </p>
         </div>
       )}

@@ -78,8 +78,8 @@ export default function Home() {
               </a>
             </div>
             <p className="mt-6 font-mono text-xs text-ink-muted">
-              Powered by Binance Web3 Wallet · Ondo tokenized stocks · BNB Agent
-              Studio
+              Powered by Binance Web3 Wallet · Ondo tokenized stocks · BNB Smart
+              Chain
             </p>
           </div>
 
@@ -395,11 +395,11 @@ export default function Home() {
               Set the rule once. It runs while you sleep.
             </h2>
             <p className="mt-5 max-w-xl text-lg leading-relaxed text-ink-secondary">
-              Strata&apos;s rebalancer runs on the Binance Agentic Wallet and
-              BNB Agent Studio. Give it a drift threshold and a cadence; it
-              quotes every leg, checks each route against the live on-chain
+              Strata&apos;s rebalancer executes through the Binance Web3 Wallet
+              aggregator on BNB Chain. Give it a drift threshold and a cadence;
+              it quotes every leg, checks each route against the live on-chain
               price, and rebalances only the legs the market can actually fill,
-              paying its own gas through x402. Every action is a signed
+              paying its own gas from its own wallet. Every action is a signed
               transaction you can audit.
             </p>
             <dl className="mt-8 grid grid-cols-2 gap-6">
@@ -407,7 +407,7 @@ export default function Home() {
                 ["24/7", "Runs against always-on tokenized markets"],
                 ["Self-custody", "The agent acts, you hold the keys"],
                 ["Auditable", "Every rebalance is a signed on-chain tx"],
-                ["Self-funding", "Pays its own gas via x402"],
+                ["Self-funding", "Holds its own BNB, pays its own gas"],
               ].map(([k, v]) => (
                 <div key={k}>
                   <dt className="text-base font-medium text-ink">{k}</dt>
@@ -442,8 +442,8 @@ export default function Home() {
                 <span className="text-down">MSFTon held</span> (no live maker)
               </p>
               <p className="text-ink-secondary">
-                <span className="text-ink-muted">simulate</span> ok / gas paid
-                via x402
+                <span className="text-ink-muted">simulate</span> ok / gas from
+                its own wallet
               </p>
               <p className="text-ink">
                 <span className="text-ink-muted">broadcast</span>{" "}
@@ -451,9 +451,9 @@ export default function Home() {
               </p>
             </div>
             <div className="rounded-lg border border-line bg-surface-2 p-3 text-xs text-ink-muted">
-              Rebalanced the tradable legs in one transaction and skipped the one
-              with no live maker. Basket back within target, and you held the
-              keys the whole time.
+              Illustrative run. Rebalanced the tradable legs in one transaction
+              and skipped the one with no live maker. Basket back within target,
+              and you held the keys the whole time.
             </div>
           </div>
         </div>

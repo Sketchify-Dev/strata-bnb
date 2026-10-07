@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Wordmark } from "@/components/logo";
+import { ConnectButton } from "@/components/connect-button";
 
 export function AppHeader() {
   return (
@@ -35,12 +36,7 @@ export function AppHeader() {
             <span className="h-1.5 w-1.5 rounded-full bg-gold" />
             Demo
           </span>
-          <button
-            type="button"
-            className="rounded-full border border-line-strong px-4 py-2 text-sm font-medium text-ink transition-colors hover:bg-surface"
-          >
-            Connect wallet
-          </button>
+          <ConnectButton />
         </div>
       </div>
     </header>
