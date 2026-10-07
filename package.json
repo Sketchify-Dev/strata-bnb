@@ -2,6 +2,24 @@
   "name": "bnb-hackathon",
   "version": "0.1.0",
   "private": true,
+  "description": "Tokenized-stock index baskets on BNB Chain with an on-chain rebalancing agent and a liquidity guardrail.",
+  "homepage": "https://strata-bnb.vercel.app",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sketchify-Dev/strata-bnb.git"
+  },
+  "author": "Sketchify (https://github.com/Sketchify-Dev)",
+  "license": "MIT",
+  "keywords": [
+    "bnb-chain",
+    "tokenized-stocks",
+    "rwa",
+    "defi",
+    "ondo",
+    "binance-web3",
+    "trading-agent",
+    "nextjs"
+  ],
   "scripts": {
     "dev": "next dev",
     "build": "next build",
