@@ -467,15 +467,15 @@ export default function Home() {
               BUILT ON
             </span>
             <h2 className="mt-3 max-w-2xl text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
-              One integration surface. The entire Binance Web3 Wallet stack.
+              Binance Web3 Wallet for routing. On-chain reads for the truth.
             </h2>
             <div className="mt-10 grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-5">
               {[
-                ["RWA data", "Tokenized equities, sectors, reference price"],
-                ["Market", "Real-time on-chain prices"],
-                ["Trading", "Cross-DEX aggregated swaps"],
-                ["Transaction", "Simulate, then broadcast"],
-                ["Wallet", "Balances and positions"],
+                ["RWA data", "Binance keyless feed: Ondo equities, reference price"],
+                ["Routing", "Binance aggregator: cross-venue quotes"],
+                ["Swap build", "Binance aggregator: executable transaction"],
+                ["Simulate", "On-chain eth_call before any broadcast"],
+                ["Wallet", "On-chain balances and allowance, via viem"],
               ].map(([k, v]) => (
                 <div key={k} className="border-t border-line pt-4">
                   <div className="text-sm font-medium text-ink">{k}</div>

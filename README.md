@@ -143,15 +143,14 @@ The agent can broadcast, so it is gated deliberately:
 
 ### Binance Web3 API coverage
 
-The tie-break is depth of Binance Web3 usage. Strata spans the stack:
+The tie-break is depth of Binance Web3 usage. Strata calls two modules, and uses them deeply; balances, simulation, and settlement are done directly on-chain with viem.
 
-| Capability | How Strata uses it |
+| Binance Web3 module | How Strata uses it |
 |---|---|
-| **RWA data** | Ondo tokenized-equity list, sectors, fundamentals on BSC |
-| **Market / price** | Live per-token reference mark (the guardrail's source of truth) |
-| **Trading** | Cross-DEX aggregated quote + swap, per basket leg |
-| **Transaction** | Simulate (`eth_call`) then broadcast, with a gas buffer so a tight-limit revert is caught pre-broadcast |
-| **Wallet** | Agent balances, allowance, and self-custodied positions |
+| **RWA Data API** | Keyless feed: the Ondo tokenized-equity list on BSC, per-token price and fundamentals, market and asset status. This is the display layer and the guardrail's reference mark. |
+| **Trading API** | Signed (HMAC-SHA256) aggregator: `dex/aggregator/quote` for per-leg routes, `dex/aggregator/swap` for the executable transaction. |
+
+Everything else is deliberately our own: balances, allowance, `eth_call` simulation, and broadcast run on BSC directly (viem over public RPC), and the wallet connect is an injected EIP-1193 provider.
 
 ---
 
