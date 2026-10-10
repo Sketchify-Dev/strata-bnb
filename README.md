@@ -3,6 +3,7 @@
 **Buy a whole theme of tokenized stocks in one tap. Then hand it to an agent with its own wallet that keeps it balanced 24/7 on BNB Chain, and refuses any trade the market cannot fill honestly.**
 
 [![Live demo](https://img.shields.io/badge/Live_demo-strata--bnb.vercel.app-F0B90B?style=flat-square)](https://strata-bnb.vercel.app)
+[![Demo video](https://img.shields.io/badge/Demo_video-YouTube-FF0000?style=flat-square)](https://youtu.be/PykhRu026ts)
 [![Network](https://img.shields.io/badge/Network-BSC_mainnet_(56)-F3BA2F?style=flat-square)](https://bscscan.com)
 [![Provider](https://img.shields.io/badge/Tokenized_stocks-Ondo-16c784?style=flat-square)](https://ondo.finance)
 [![Built for](https://img.shields.io/badge/BNB_Hack-Tokenized_Stocks_Edition-4c8dff?style=flat-square)](#)
@@ -17,6 +18,7 @@ Strata is a tokenized-equity index product on BNB Smart Chain. You buy a curated
 | | |
 |---|---|
 | **Live product** | https://strata-bnb.vercel.app (quotes + guardrail run live from the hosted site) |
+| **Demo video** | https://youtu.be/PykhRu026ts |
 | **The edge** | A liquidity guardrail that **refuses off-market fills**. Proven in production: it held a real MSFTon route quoting at **~$1.03B/token vs a $511.52 mark** (see below). |
 | **Real on-chain proof** | The agent's own wallet signed and broadcast **3 real BSC mainnet transactions**, including an actual tokenized-stock purchase (NVDAon). Hashes below, all on BscScan. |
 | **Honesty** | The hosted demo is deliberately **simulate-only** (no key on the host, so it can never broadcast). The real execution path is proven by the mainnet hashes, run locally from a funded burner. We label every claim as live or roadmap. |
